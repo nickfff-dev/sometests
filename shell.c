@@ -18,6 +18,7 @@ int main(void)
 	char *path = NULL;
 	char *path_env = NULL;
 	char *token;
+	char **env;
 	char *path_env_copy;
 
 	while (1)
@@ -48,6 +49,23 @@ int main(void)
 				free(line);
 				continue;
 			}
+			if (_strcmp(array[0], "exit") == 0)
+			{
+				free(array);
+				break;
+			}
+			if (_strcmp(array[0], "env") == 0)
+			{
+				env = environ;
+				while (*env != NULL)
+				{
+					printf("%s\n", *env);
+					env++;
+				}
+				free(line);
+				continue;
+			}
+
 			if (array[0][0] == '/')
 			{
 				if (stat(array[0], &st) == 0)
@@ -146,5 +164,5 @@ int main(void)
 			
 			}
 		}}
-		
+return(0);		
 }

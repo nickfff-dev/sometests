@@ -17,4 +17,5 @@ int _strlen(char *s);
 char * _strdup(char *str);
 char *_strchr(char *s, char c);
 int _strncmp(const char *s1, const char *s2, size_t n);
+int _strcmp(char *s1, char *s2);
 #endif
