@@ -18,6 +18,7 @@ int main(void)
 	char *path = NULL;
 	char *path_env = NULL;
 	char *token;
+	char *path_env_copy;
 
 	while (1)
 	{
@@ -68,6 +69,9 @@ int main(void)
 					else
 					{
 						wait(&status);
+						free(array);
+						free(line);
+
 					}
 				}
 				else
@@ -86,7 +90,13 @@ int main(void)
 					perror("Error");
 					continue;
 				}
-				for (token = strtok(path_env, ":"); token != NULL; token = strtok(NULL, ":"))
+				path_env_copy = _strdup(path_env);
+				if (path_env_copy == NULL)
+				{
+					perror("Error");
+					continue;
+				}
+				for (token = strtok(path_env_copy, ":"); token != NULL; token = strtok(NULL, ":"))
 				{
 					path = (char *)malloc(sizeof(char) * (_strlen(token) + _strlen(array[0]) + 2));
 					if (path == NULL)
@@ -99,25 +109,42 @@ int main(void)
 					path = _strcat(path, array[0]);
 					if (stat(path, &st) == 0)
 					{
+						child_pid = fork();
+						if (child_pid == -1)
+						{
+							perror("Error:");
+							exit(1);
+						}
+						if (child_pid == 0)
+						{
 						if (execve(path, array, environ) == -1)
 						{
 							perror("Error");
 							exit(1);
 						}
 
-						free(path);
-						free(array);
-						break;
-					}
-					else
-					{	free(path);
-						continue;
-					}
+						
+						}
+						else
+						{
+							wait(&status);
+							free(array);
+							free(path);
+							break;
+						}
 
 				}
-				continue;
-			}
+					else
+					{
+						free(path);
+						continue;
+					}
 			
 			}
-		}
+				free(path_env_copy);
+				continue;
+			
+			}
+		}}
+		
 }

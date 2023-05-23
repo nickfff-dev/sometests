@@ -14,5 +14,6 @@ char **spltstr(char *str);
 char *_strcat(char *dest, char *src);
 char *_getenv(char *name);
 int _strlen(char *s);
+char * _strdup(char *str);
 
 #endif
