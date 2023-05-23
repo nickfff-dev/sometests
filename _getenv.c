@@ -18,12 +18,12 @@ char *_getenv(char *name)
 	{
 		env = environ[i];
 		env_name = env;
-		env_value = strchr(env, '=');
+		env_value = _strchr(env, '=');
 		if (env_value == NULL)
 		{
 			continue;
 		}
-		if (strncmp(env_name, name, len) == 0)
+		if (_strncmp(env_name, name, len) == 0)
 		{
 			return (env_value + 1);
 		}
