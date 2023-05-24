@@ -7,162 +7,29 @@
 int main(void)
 {
 	char *line = NULL;
-	size_t len = 0;
-
-	ssize_t nread;
-	pid_t child_pid;
-	int status;
 	char **array = NULL;
-
-	struct stat st;
-	char *path = NULL;
-	char *path_env = NULL;
-	char *token;
-	char **env;
-	char *path_env_copy;
+	int status = 0;
 
 	while (1)
 	{
 		printf("$ ");
-		nread = getline(&line, &len, stdin);
-		if (nread == -1)
+		line = read_line();
+		array = spltstr(line);
+		if (array[0] == NULL)
 		{
 			perror("Error");
-			exit(1);
+			free(line);
+			free(array);
+			continue;
 		}
-		if (line[0] == '\n')
+		status = execute_command(array);
+		if (status == 1)
 		{
+			perror("Error");
+			free(array);
 			free(line);
 			continue;
 		}
-		else
-		{
-			if (line[nread - 1] == '\n')
-			{
-				line[nread - 1] = '\0';
-				--nread;
-			}
-			array = spltstr(line);
-			if (array == NULL)
-			{
-				perror("Error");
-				free(line);
-				continue;
-			}
-			if (_strcmp(array[0], "exit") == 0)
-			{
-				free(array);
-				break;
-			}
-			if (_strcmp(array[0], "env") == 0)
-			{
-				env = environ;
-				while (*env != NULL)
-				{
-					printf("%s\n", *env);
-					env++;
-				}
-				free(line);
-				continue;
-			}
-
-			if (array[0][0] == '/')
-			{
-				if (stat(array[0], &st) == 0)
-				{
-					child_pid = fork();
-					if (child_pid == -1)
-					{
-						perror("Error");
-						exit(1);
-					}
-					if (child_pid == 0)
-					{
-						if (execve(array[0], array, environ) == -1)
-						{
-							perror("Error");
-							exit(1);
-						}
-					}
-					else
-					{
-						wait(&status);
-						free(array);
-						free(line);
-
-					}
-				}
-				else
-				{
-					perror("Error");
-					free(array);
-					free(line);
-					continue;
-				}
-			}
-			else
-			{
-				path_env = _getenv("PATH");
-				if (path_env == NULL)
-				{
-					perror("Error");
-					continue;
-				}
-				path_env_copy = _strdup(path_env);
-				if (path_env_copy == NULL)
-				{
-					perror("Error");
-					continue;
-				}
-				for (token = strtok(path_env_copy, ":"); token != NULL; token = strtok(NULL, ":"))
-				{
-					path = (char *)malloc(sizeof(char) * (_strlen(token) + _strlen(array[0]) + 2));
-					if (path == NULL)
-					{
-						perror("Error");
-						exit(1);
-					}
-					path = _strcat(path, token);
-					path = _strcat(path, "/");
-					path = _strcat(path, array[0]);
-					if (stat(path, &st) == 0)
-					{
-						child_pid = fork();
-						if (child_pid == -1)
-						{
-							perror("Error:");
-							exit(1);
-						}
-						if (child_pid == 0)
-						{
-						if (execve(path, array, environ) == -1)
-						{
-							perror("Error");
-							exit(1);
-						}
-
-						
-						}
-						else
-						{
-							wait(&status);
-							free(array);
-							free(path);
-							break;
-						}
-
-				}
-					else
-					{
-						free(path);
-						continue;
-					}
-			
-			}
-				free(path_env_copy);
-				continue;
-			
-			}
-		}}
-return(0);		
+	}
+	return (0);
 }
